@@ -1,15 +1,98 @@
-## Put comments here that give an overall description of what your
-## functions do
+makeVector <- function(x = numeric()) {
+  m <- NULL
+  set <- function(y) {
+    x <<- y
+    m <<- NULL
+  }
+  get <- function() x
+  setmean <- function(mean) m <<- mean
+  getmean <- function() m
+  list(set = set, get = get,
+       setmean = setmean,
+       getmean = getmean)
+}
 
-## Write a short comment describing this function
+
+cachemean <- function(x, ...) {
+  m <- x$getmean()
+  if(!is.null(m)) {
+    message("getting cached data")
+    return(m)
+  }
+  data <- x$get()
+  m <- mean(data, ...)
+  x$setmean(m)
+  m
+}
+
+
+# to test the code
+source("cachematrix.R")
+
+
+# to generate matrix, and the inverse of the matrix.
+## Caching the Inverse of a Matrix:
+## The following pair of functions are used to create a special object that 
+## stores a matrix and caches its inverse.
+## This function creates a special "matrix" that can cache its inverse.
 
 makeCacheMatrix <- function(x = matrix()) {
-
+  inv <- NULL
+  set <- function(y) {
+    x <<- y
+    inv <<- NULL
+  }
+  get <- function() x
+  setInverse <- function(inverse) inv <<- inverse
+  getInverse <- function() inv
+  list(set = set,
+       get = get,
+       setInverse = setInverse,
+       getInverse = getInverse)
 }
 
 
-## Write a short comment describing this function
+## This function computes the inverse of the special "matrix" created by makeCacheMatrix above. 
+## If the inverse has already been calculated ( the matrix is the same), then 
+## it should retrieve the inverse from the cache.
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+  ## Return a matrix that is the inverse of 'x'
+  inv <- x$getInverse()
+  if (!is.null(inv)) {
+    message("getting cached data")
+    return(inv)
+  }
+  mat <- x$get()
+  inv <- solve(mat, ...)
+  x$setInverse(inv)
+  inv
 }
+
+
+#########Testing##########
+
+source("cachematrix.R")
+my_matrix <- makeCacheMatrix(matrix(1:4, 2, 2))
+my_matrix$get()
+
+my_matrix$getInverse()
+
+cacheSolve(my_matrix)
+
+cacheSolve(my_matrix)
+#getting cached data
+
+my_matrix$getInverse()
+
+my_matrix$set(matrix(c(2, 2, 1, 4), 2, 2))
+my_matrix$get()
+
+my_matrix$getInverse()
+
+cacheSolve(my_matrix)
+
+cacheSolve(my_matrix)
+#getting cached data
+
+my_matrix$getInverse()
